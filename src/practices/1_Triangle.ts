@@ -67,6 +67,7 @@ function main(gl: WebGLRenderingContext, program: WebGLProgram) {
 
     function clean() {
         gl.deleteBuffer(positionBuffer);
+        gl.deleteBuffer(colorBuffer);
     }
 
     return {

@@ -1,15 +1,17 @@
-import { Shader } from ".";
-
+import { Shader } from '.';
+import { mat4 } from 'gl-matrix';
 
 const shader: Shader = {
     vertex: `
 attribute vec4 a_position;
 attribute vec4 a_color;
 
+uniform mat4 u_projection;
+
 varying vec4 v_color;
 
 void main() {
-    gl_Position = a_position;
+    gl_Position = u_projection * a_position;
     
     v_color = a_color;
 }
@@ -26,7 +28,7 @@ void main() {
 };
 
 
-function main(gl: WebGLRenderingContext, program: WebGLProgram) {
+function main(gl: WebGLRenderingContext, program: WebGLProgram, canvas: HTMLCanvasElement) {
     
     // shader attributes
     const positionAttribLocation = gl.getAttribLocation(program, 'a_position');
@@ -34,19 +36,22 @@ function main(gl: WebGLRenderingContext, program: WebGLProgram) {
     gl.enableVertexAttribArray(positionAttribLocation);
     gl.enableVertexAttribArray(colorAttribLocation);
 
-    // buffers
+    // uniforms
+    const projectionUniformLocation = gl.getUniformLocation(program, 'u_projection');
+
+    // attrib buffers
     const positionBuffer = gl.createBuffer();
     const colorBuffer = gl.createBuffer();
 
     const positions = [
-        -0.5, -0.5,
-        -0.5, 0.5,
-        0.5, 0
+        -0.5, -0.5, -1,
+        -0.5, 0.5, -1,
+        0.5, 0, -1
     ];
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
     gl.vertexAttribPointer(
-        positionAttribLocation, 2, gl.FLOAT, false, 0, 0
+        positionAttribLocation, 3, gl.FLOAT, false, 0, 0
     );
 
     const colors = [
@@ -60,16 +65,26 @@ function main(gl: WebGLRenderingContext, program: WebGLProgram) {
         colorAttribLocation, 4, gl.FLOAT, false, 0, 0
     );
 
-    // TODO: add uniform to shader - orthogonal matrix
+    // uniform
+    const projectionMatrix = mat4.create();
+    gl.uniformMatrix4fv(projectionUniformLocation, false, projectionMatrix);
 
-
-    // loop
     function render() {
+        const aspectRatio = canvas.clientWidth / canvas.clientHeight;
+        mat4.ortho(
+            projectionMatrix,
+            -aspectRatio, aspectRatio,
+            -1, 1,
+            0,
+            10
+        );
+        gl.uniformMatrix4fv(projectionUniformLocation, false, projectionMatrix);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
     }
 
     function clean() {
         gl.deleteBuffer(positionBuffer);
+        gl.deleteBuffer(colorBuffer);
     }
 
     return {

@@ -1,5 +1,6 @@
 
 import Triangle from './1_Triangle';
+import OrthogonalTriangle from './2_OrthogonalTriangle';
 
 export interface Shader {
     vertex: string,
@@ -19,7 +20,8 @@ export interface PracticeInfo {
 }
 
 const practiceInfos: PracticeInfo[] = [
-    Triangle
+    Triangle,
+    OrthogonalTriangle
 ];
 
 export default practiceInfos;

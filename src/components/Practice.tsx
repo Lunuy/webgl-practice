@@ -9,8 +9,6 @@ const OuterDiv = styled.div`
 `;
 
 const Canvas = styled.canvas`
-width: 100%;
-height: 100vh;
 display: block;
 `;
 
@@ -94,7 +92,7 @@ function Practice() {
         // essential event listeners
         const resize = () => {
             canvas.height = window.innerHeight;
-            canvas.width = window.innerHeight - 180;
+            canvas.width = window.innerWidth - 180;
             gl.viewport(0, 0, canvas.width, canvas.height);
         };
         window.addEventListener('resize', resize);
@@ -139,7 +137,7 @@ function Practice() {
             gl.deleteShader(fragmentShader);
             gl.deleteProgram(program);
         };
-    }, [canvasRef.current]);
+    }, [canvasRef.current, id]);
 
     if(error) {
         return (
