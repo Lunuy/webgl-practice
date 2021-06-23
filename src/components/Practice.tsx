@@ -10,6 +10,7 @@ const OuterDiv = styled.div`
 
 const Canvas = styled.canvas`
 display: block;
+outline: none;
 `;
 
 const ErrorLog = styled.pre`
@@ -107,18 +108,17 @@ function Practice() {
         const {
             update,
             render,
-            clean
+            clean,
+            components = []
         } = practiceInfo.main(gl, program, canvas);
 
         let ended = false;
-        let lastTime = performance.now();
         const frame = () => {
             if(ended) return;
-            const newTime = performance.now();
-            let dt = newTime - lastTime;
-            lastTime = newTime;
 
-            update?.(dt);
+            components.forEach(component => component.update());
+            update?.();
+            components.forEach(component => component.afterUpdate());
 
             gl.clearColor(0, 0, 0, 0);
             gl.clear(gl.COLOR_BUFFER_BIT);
@@ -133,6 +133,7 @@ function Practice() {
         return () => {
             ended = true;
             clean?.();
+            components.forEach(component => component.clean());
             gl.deleteShader(vertexShader);
             gl.deleteShader(fragmentShader);
             gl.deleteProgram(program);
